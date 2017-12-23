@@ -5,6 +5,7 @@ package main
  */
 
 
+import java.math.BigInteger
 import java.util.*
 
 fun validate(text: String, disCharSize: Int): Boolean {
@@ -47,10 +48,10 @@ fun adjustIndexList(indexes: MutableList<Int>, size: Int) {
     }
 }
 
-fun getFactoryFor(x: Int): Int {
-    var res = 1
-    for (i in (1..x)) {
-        res *= i
+fun getFactoryFor(x: Int): BigInteger {
+    var res = BigInteger.ONE
+    for (i in 2..x) {
+        res *= (BigInteger.valueOf(i.toLong()))
     }
     return res
 }
@@ -70,7 +71,7 @@ fun getRemovalList(disChar: Set<Char>, size: Int): MutableList<List<Char>> {
 
     val indexList = (0 until size).toMutableList()
 
-    for (i in 1..repeatUntil) {
+    for (i in 1..repeatUntil.toInt()) {
         val list = indexList.map { disChar.elementAt(it) }
         result.add(list)
         adjustIndexList(indexList, disSize)
@@ -104,14 +105,12 @@ fun main(args: Array<String>) {
     }
 
     var maxLength = 0
-    for (i in 1..disCharSize - 2) {
-        val removalList = getRemovalList(distinctChar, i)
-        for (list in removalList) {
-            val testLine = remove(line, list)
-            if (validate(testLine, disCharSize - i)) {
-                if (testLine.length > maxLength) {
-                    maxLength = testLine.length
-                }
+    val removalList = getRemovalList(distinctChar, disCharSize - 2)
+    for (list in removalList) {
+        val testLine = remove(line, list)
+        if (validate(testLine, 2)) {
+            if (testLine.length > maxLength) {
+                maxLength = testLine.length
             }
         }
     }
