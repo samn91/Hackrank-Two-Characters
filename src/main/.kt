@@ -4,82 +4,10 @@ package main
  * Created by Samer on 23/12/2017.
  */
 
-
-import java.math.BigInteger
 import java.util.*
 
-fun validate(text: String, disCharSize: Int): Boolean {
-    if (disCharSize == 2) {
-        var holder: Char? = null
-        for (c in text) {
-            if (holder == null) {
-                holder = c
-                continue
-            }
-            if (holder == c)
-                return false
-            holder = c
-        }
-        return true
-    }
-    return false
-}
+fun validate(text: String) = (1 until text.length).none { text[it - 1] == text[it] }
 
-fun remove(line: String, list: List<Char>) =
-        line.filterNot { list.contains(it) }
-
-fun adjustIndexList(indexes: MutableList<Int>, size: Int) {
-//    for (i in indexes.size - 1 downTo 0) {
-//        if (indexes[i] != size - 1) {
-//            indexes[i]++
-//            break
-//        } else {
-//            indexes[i]--
-//        }
-//    }
-    for (i in indexes.size - 1 downTo 0) {
-        if (indexes[i] != size - (indexes.size - i)) {
-            indexes[i]++
-            var holder = indexes[i]
-            for (j in i + 1 until indexes.size)
-                indexes[j] = ++holder
-            break
-        }
-    }
-}
-
-fun getFactoryFor(x: Int): BigInteger {
-    var res = BigInteger.ONE
-    for (i in 2..x) {
-        res *= (BigInteger.valueOf(i.toLong()))
-    }
-    return res
-}
-
-//use index instead of list
-// if we wanna get all the problity for 3 char
-// then we create list of 3 indexes
-// first iteration will be 1 2 3 output is list of char in that index
-// second 1 2 4
-// third 1 3 4
-// like clock
-fun getRemovalList(disChar: Set<Char>, size: Int): MutableList<List<Char>> {
-    val result = mutableListOf<List<Char>>()
-
-    val disSize = disChar.size
-    val repeatUntil = getFactoryFor(disSize) / (getFactoryFor(size) * getFactoryFor(disSize - size))
-
-    val indexList = (0 until size).toMutableList()
-
-    for (i in 1..repeatUntil.toInt()) {
-        val list = indexList.map { disChar.elementAt(it) }
-        result.add(list)
-        adjustIndexList(indexList, disSize)
-    }
-
-
-    return result
-}
 
 fun main(args: Array<String>) {
 
@@ -96,33 +24,18 @@ fun main(args: Array<String>) {
     val distinctChar = line.toSet()
     val disCharSize = distinctChar.size
 
-    if (disCharSize < 3) {
-        if (validate(line, disCharSize)) {
-            println(line.length)
-        } else
-            println(0)
-        return
-    }
-
     var maxLength = 0
-    val removalList = getRemovalList(distinctChar, disCharSize - 2)
-    for (list in removalList) {
-        val testLine = remove(line, list)
-        if (validate(testLine, 2)) {
-            if (testLine.length > maxLength) {
-                maxLength = testLine.length
+
+    for (i in 0 until disCharSize)
+        for (j in i until disCharSize) {
+            val testLine = line.filter { it == distinctChar.elementAt(i) || it == distinctChar.elementAt(j) }
+            if (validate(testLine)) {
+                if (testLine.length > maxLength) {
+                    maxLength = testLine.length
+                }
             }
         }
-    }
+
 
     println(maxLength)
-}
-
-fun testProbabilty() {
-    val line = "abcde"
-
-
-    for (i in 1..line.length + 1)
-        println(getRemovalList(line.toSet(), i).joinToString(","))
-
 }
